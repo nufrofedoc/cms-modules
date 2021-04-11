@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<modification>
+   <name>Library mod pagination</name>
+   <code>library_mod_pagination</code>
+   <version>1.0.0</version>
+   <author>Ruslan Lazurenko</author>
+   <link />
+   <file path="system/library/pagination.php">
+     <operation>
+       <search><![CDATA[public $text_first = '|&lt;';]]></search>
+       <add position="replace"><![CDATA[public $text_first = '&#10094;&#10094;';]]></add>
+     </operation>
+     <operation>
+         <search><![CDATA[public $text_prev = '&lt;';]]></search>
+         <add position="replace"><![CDATA[public $text_prev = '&#10094;';]]></add>
+     </operation>
+     <operation>
+       <search><![CDATA[public $text_next = '&gt;';]]></search>
+       <add position="replace"><![CDATA[public $text_next = '&#10095;';]]></add>
+     </operation>
+     <operation>
+       <search><![CDATA[public $text_last = '&gt;|';]]></search>
+       <add position="replace"><![CDATA[public $text_last = '&#10095;&#10095;';]]></add>
+     </operation>
+      <operation>
+         <search><![CDATA[$output = '<ul class="pagination">';]]></search>
+         <add position="replace"><![CDATA[$output = '<ul class="pagination">';]]></add>
+      </operation>
+      <operation>
+         <search><![CDATA[if ($page > 1) {]]></search>
+         <add position="before"><![CDATA[if ($page === 1) {
+                 $output .= '<li class="disabled"><a>'.$this->text_first.'</a></li>';
+                 $output .= '<li class="disabled"><a>'.$this->text_prev.'</a></li>';
+                 }]]></add>
+      </operation>
+
+      <operation>
+         <search><![CDATA[for ($i = $start; $i <= $end; $i++) {]]></search>
+         <add position="replace" offset="10"><![CDATA[for ($i = $start; $i <= $end; $i++) {
+	         if ($page == $i) {
+	         $output .= '<li><span>Page ' . $i . ' of ' . $end . '</span></li>';
+	         } 
+                 }]]></add>
+      </operation>
+      <operation>
+         <search><![CDATA[if ($page < $num_pages) {]]></search>
+         <add position="before"><![CDATA[if ((float)$page === $num_pages) {
+                 $output .= '<li class="disabled"><a>'.$this->text_next.'</a></li>';
+                 $output .= '<li class="disabled"><a>'.$this->text_last.'</a></li>';
+                 }]]></add>
+      </operation>
+      <operation>
+         <search><![CDATA[if ($page < $num_pages) {]]></search>
+         <add position="replace" offset="3"><![CDATA[if ($page < $num_pages) {
+                 $output .= '<li><a href="' . str_replace('{page}', $page + 1, $this->url) . '">'.$this->text_next.'</a></li>';
+                 $output .= '<li><a href="' . str_replace('{page}', $num_pages, $this->url) . '">'.$this->text_last.'</a></li>';
+                 }]]></add>
+      </operation>
+   </file>
+</modification>
