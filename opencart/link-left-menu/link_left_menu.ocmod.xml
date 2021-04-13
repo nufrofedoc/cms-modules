@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+    <name>Link At Left Menu</name>
+    <version>1.0.0</version>
+    <author>Ruslan Lazurenko</author>
+    <code>link_at_left_menu</code>
+    <description>Show modules link at left menu</description>
+    <file path="admin/controller/common/column_left.php">
+        <operation>
+            <search><![CDATA[ if ($this->user->hasPermission('access', 'extension/extension')) { ]]></search>
+            <add position="after"><![CDATA[
+                $extension[] = array(
+                    'name'     => "Modules",
+                    'href'     => $this->url->link('extension/extension&type=module', 'token=' . $this->session->data['token'], true),
+                    'children' => array()
+                );
+            ]]></add>
+        </operation>
+    </file>
+</modification>
