@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <code>Reviews carousel</code>
+  <name>Reviews</name>
+  <version>1.0</version>
+  <file path="admin/controller/catalog/review.php">
+    <operation>
+      <search>
+        <![CDATA[
+                 protected function validateForm() {
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+                 public function addField() {
+                 
+                 $this->load->model('catalog/review');
+
+if ($this->request->server['REQUEST_METHOD'] == 'POST') {
+if($this->request->post['action'] == 'true') {
+$field = $this->model_catalog_review->addField();
+
+if($field == true) {
+$this->response->addHeader('Content-Type: application/json');
+$this->response->setOutput(json_encode(true));
+} else {
+$this->response->addHeader('Content-Type: application/json');
+$this->response->setOutput(json_encode(false));
+}
+}
+}
+}
+        ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="admin/model/catalog/review.php">
+    <operation>
+      <search>
+        <![CDATA[
+                 public function getTotalReviewsAwaitingApproval() {
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+                 public function addField() {
+                 $this->db->query("ALTER TABLE " . DB_PREFIX . "review ADD checked TINYINT NOT NULL AFTER text");
+                 return true;
+                 }
+        ]]>
+      </add>
+    </operation>
+  </file>
+  <file path="admin/view/template/catalog/review_form.tpl">
+    <operation>
+      <search>
+        <![CDATA[
+                 <div class="panel-heading">
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+                 <?php if(!isset($checked)):?>
+                 <form id="add_field" class="form-horizontal">
+                   <div class="msg-field"></div>
+                   <div class="form-group">
+                     <label class="col-sm-5 control-label" for="input-author">Please install the field for reviews carousel</label>
+                     <div class="col-sm-5">
+                       <button type="button" id="btn-install" class="btn btn-success" value="true">Install field</button>
+                     </div>
+                   </div>
+                 </form>
+                 <script>
+                   $('#btn-install').on('click', function(){
+                   
+                   $.ajax({
+                   type: 'POST',
+                   url: 'index.php?route=catalog/review/addField&token=<?php echo $token;?>',
+                   data: {'action':$(this).val()},
+                   dataType: 'json',
+                   success: function(data) {
+                   if(data === true) {
+                   $('.msg-field').html('<div class="alert alert-success">Success</div>');
+                   window.location.reload();
+                   } else {
+                   $('.msg-field').html('<div class="alert alert-warnign">Error instal field.</div>');
+                   }
+                   }
+                   });
+                   return false;
+                   });
+                 </script>
+                 <?php endif;?>
+                 ]]>
+      </add>
+    </operation>
+  </file>
+
+  <file path="admin/language/english/catalog/review.php">
+    <operation>
+      <search>
+        <![CDATA[
+                 $_['text_edit']         = 'Edit Review';
+        ]]></search>
+        <add position="after"><![CDATA[
+        $_['text_fav']         = 'Favorives';
+        ]]></add>
+    </operation>
+  </file>
+  <file path="admin/language/ru/catalog/review.php">
+    <operation>
+      <search>
+        <![CDATA[
+                 $_['text_edit']         = 'Редактирование';
+        ]]></search>
+        <add position="after"><![CDATA[
+        $_['text_fav']         = 'Избранные';
+        ]]></add>
+    </operation>
+  </file>
+  <file path="admin/controller/catalog/review.php">
+    <operation>
+      <search>
+        <![CDATA[
+                 $data['entry_text'] = $this->language->get('entry_text');
+        ]]></search>
+        <add position="after"><![CDATA[
+        $data['text_fav'] = $this->language->get('text_fav');
+        ]]></add>
+    </operation>
+  </file>
+  <file path="admin/controller/catalog/review.php">
+    <operation>
+      <search><![CDATA[
+      $data['rating'] = '';
+      ]]></search>
+      <add position="after" offset="1"><![CDATA[
+      if (isset($this->request->post['checked'])) {
+      $data['checked'] = $this->request->post['checked'];
+      } elseif (!empty($review_info)) {
+      $data['checked'] = $review_info['checked'];
+      } else {
+      $data['checked'] = '';
+      }
+      ]]></add>
+    </operation>
+  </file>
+  <file path="admin/view/template/catalog/review_form.tpl">
+    <operation>
+      <search>
+        <![CDATA[
+              <textarea name="text" cols="60" rows="8" placeholder="<?php echo $entry_text; ?>" id="input-text" class="form-control summernote"><?php echo $text; ?></textarea>
+        ]]></search>
+        <add position="after" offset="5"><![CDATA[
+        <div class="form-group">
+          <label for="input-checked" class="col-sm-2 control-label"><?php echo $text_fav;?></label>
+          <div class="col-sm-10">
+            <select name="checked" id="input-checked" class="form-control">
+              <?php if ($checked) { ?>
+              <option value="1" selected="selected"><?php echo $text_enabled; ?></option>
+              <option value="0"><?php echo $text_disabled; ?></option>
+              <?php } else { ?>
+              <option value="1"><?php echo $text_enabled; ?></option>
+              <option value="0" selected="selected"><?php echo $text_disabled; ?></option>
+              <?php } ?>
+            </select>
+          </div>
+        </div>
+        ]]></add>
+      </operation>
+    </file>
+  </modification>
